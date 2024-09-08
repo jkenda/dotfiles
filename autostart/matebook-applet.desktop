@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Exec=matebook-applet
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[sl_SI]=Matebook Applet
+Name=Matebook Applet
+Comment[sl_SI]=
+Comment=

@@ -1,0 +1,5 @@
+modmap:
+  - name: Swap ćž
+    remap:
+      apostrophe: backslash
+      backslash: apostrophe
