@@ -313,8 +313,6 @@ dap.adapters.ocaml = {
 	cwd = "${workspaceFolder}",
 }
 
-dap.configurations.ocaml = {}
-
 vim.keymap.set("n", "<Leader>b" , dap.toggle_breakpoint)
 vim.keymap.set("n", "<Leader>ru", dap.run_to_cursor)
 
@@ -322,12 +320,12 @@ vim.keymap.set("n", "<Leader>k", function()
     require("dapui").eval(nil, { enter = true })
 end)
 
-vim.keymap.set("n", "<F5>", dap.continue)
-vim.keymap.set("n", "<F11>", dap.step_into)
-vim.keymap.set("n", "<F10>", dap.step_over)
-vim.keymap.set("n", "<C-<F11>>", dap.step_out)
--- vim.keymap.set("n", "<F5>", dap.step_back)
--- vim.keymap.set("n", "<F13>", dap.restart)
+vim.keymap.set("n", "<Leader>d", dap.continue)
+vim.keymap.set("n", "<Leader>j", dap.step_over)
+vim.keymap.set("n", "<Leader>l", dap.step_into)
+vim.keymap.set("n", "<Leader>h", dap.step_out)
+vim.keymap.set("n", "<Leader>k", dap.step_back)
+vim.keymap.set("n", "<Leader>r", dap.restart)
 
 dap.listeners.before.attach.dapui_config = function()
     ui.open()
