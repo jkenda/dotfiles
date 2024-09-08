@@ -298,6 +298,13 @@ local ui = require "dapui"
 
 ui.setup()
 
+dap.adapters.gdb = {
+    id = "gdb",
+    type = "executable",
+    command = "gdb",
+    args = { "--quiet", "--interpreter=dap" },
+}
+
 -- opam install earlybird
 dap.adapters.ocaml = {
 	type = "executable",
