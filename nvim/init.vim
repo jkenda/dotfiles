@@ -119,8 +119,7 @@ call plug#begin()
 Plug 'rose-pine/neovim', { 'as': 'rose-pine' }
 
 Plug 'rust-lang/rust.vim'
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'nvim-treesitter/playground'
+Plug 'nvim-treesitter/nvim-treesitter', { 'branch': 'main', 'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-context'
 
 if exists('g:vscode')
@@ -136,7 +135,7 @@ Plug 'ThePrimeagen/vim-be-good'
 " Telescope
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim'
-Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.3' }
+Plug 'nvim-telescope/telescope.nvim'
 
 " syntax
 Plug 'digitaltoad/vim-pug'
@@ -155,7 +154,7 @@ Plug 'hrsh7th/cmp-path'         " Optional
 Plug 'saadparwaiz1/cmp_luasnip' " Optional
 Plug 'hrsh7th/cmp-nvim-lua'     " Optional
 
-Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v1.x'}
+Plug 'VonHeikemen/lsp-zero.nvim', {'branch': 'v4.x'}
 
 " Debug adapter
 Plug 'mfussenegger/nvim-dap'
@@ -163,6 +162,14 @@ Plug 'nvim-neotest/nvim-nio',
 Plug 'rcarriga/nvim-dap-ui'
 
 call plug#end()
+
+" Neovide
+if exists("g:neovide")
+    let g:neovide_cursor_animation_length = 0
+    let g:neovide_cursor_short_animation_length = 0
+    let g:neovide_remember_window_size = v:true
+    let g:neovide_hide_mouse_when_typing = v:true
+endif
 
 inoremap \t \t
 
@@ -175,19 +182,36 @@ set t_ut=
 lua <<EOF
 
 -- LSP
--- Learn the keybindings, see :help lsp-zero-keybindings
--- Learn to configure LSP servers, see :help lsp-zero-api-showcase
-local lsp = require('lsp-zero')
-lsp.preset('recommended')
-lsp.ensure_installed({
-    'tsserver',
-    'clangd',
-    'rust_analyzer'
-})
+local function get_clangd_cmd()
+  -- Try Mason's clangd first
+  local mason_clangd = vim.fn.stdpath('data') .. '/mason/bin/clangd'
+  if vim.fn.executable(mason_clangd) == 1 then
+    return mason_clangd
+  end
 
--- (Optional) Configure lua language server for neovim
-lsp.nvim_workspace()
-lsp.setup()
+  -- Fall back to system clangd
+  if vim.fn.executable('clangd') == 1 then
+    return 'clangd'
+  end
+
+  -- Neither available
+  vim.notify('clangd not found: install via Mason or your system package manager', vim.log.levels.ERROR)
+  return nil
+end
+
+local clangd_cmd = get_clangd_cmd()
+if clangd_cmd then
+  vim.lsp.config('clangd', {
+    cmd = { clangd_cmd },
+  })
+end
+
+require('mason').setup({})
+require('mason-lspconfig').setup({
+  -- Replace the language servers listed here
+  -- with the ones you want to install
+  ensure_installed = {'lua_ls', 'rust_analyzer'},
+})
 
 vim.diagnostic.config({
     -- always show error messages inline
@@ -232,7 +256,7 @@ lua <<EOF
 -- treesitter --
 ----------------
 
-require('nvim-treesitter.configs').setup({
+require('nvim-treesitter').setup({
   ensure_installed = "all",
 
   auto_install = true,
@@ -252,33 +276,6 @@ require('nvim-treesitter.configs').setup({
     additional_vim_regex_highlighting = false,
   },
 })
-
-local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-parser_config.slj = {
-  install_info = {
-    url = "git@github.com:jkenda/tree-sitter-slj", -- local path or git repo
-    branch = "main",
-    files = {"src/parser.c"},
-  },
-  filetype = "slj", -- if filetype does not match the parser name
-}
-
-parser_config.odin = {
-  install_info = {
-    url = "git@github.com:ap29600/tree-sitter-odin.git", -- local path or git repo
-    files = {"src/parser.c"},
-  },
-  filetype = "odin", -- if filetype does not match the parser name
-}
-
-parser_config.pug = {
-  install_info = {
-    url = "git@github.com:zealot128/tree-sitter-pug.git", -- local path or git repo
-    branch = "main",
-    files = {"src/parser.c"},
-  },
-  filetype = "pug", -- if filetype does not match the parser name
-}
 
 vim.filetype.add({ extension = { slj = "slj" } })
 vim.filetype.add({ extension = { odin = "odin" } })
