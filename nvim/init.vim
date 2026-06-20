@@ -167,6 +167,8 @@ call plug#end()
 if exists("g:neovide")
     let g:neovide_cursor_animation_length = 0
     let g:neovide_cursor_short_animation_length = 0
+    let g:neovide_position_animation_length = 0
+    let g:neovide_scroll_animation_length = 0
     let g:neovide_remember_window_size = v:true
     let g:neovide_hide_mouse_when_typing = v:true
 endif
